@@ -10,24 +10,24 @@ try:
     from langchain.output_parsers import PydanticOutputParser
 except ImportError:
     st.error(
-        "LangChain modules not found. "
-        "Make sure you installed langchain>=1.1 and langchain-google-genai>=1.0.1"
+        "LangChain or Google Generative AI modules not found. "
+        "Ensure you installed langchain>=1.1 and langchain-google-genai>=1.0.1."
     )
     raise
 
 # ============================
-# 1. Define Schema
+# 1. Define Schema for output
 # ============================
 class SpamClassification(BaseModel):
     label: Literal["Spam", "Not Spam", "Uncertain"]
     reasons: List[str]
-    risk_score: int = Field(..., ge=0, le=100, description="0..100 risk score")
+    risk_score: int = Field(..., ge=0, le=100, description="Risk score from 0 to 100")
     red_flags: List[str]
     suggested_action: str
 
-# =======================
+# ============================
 # 2. Build chain (cached)
-# =======================
+# ============================
 @st.cache_resource
 def get_chain():
     parser = PydanticOutputParser(pydantic_object=SpamClassification)
@@ -42,18 +42,24 @@ def get_chain():
         ("human", "Classify this message:\n\"{message}\"")
     ])
 
+    api_key = os.environ.get("GOOGLE_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
+    if not api_key:
+        st.error("GOOGLE_API_KEY is not set. Please add it in Streamlit Secrets.")
+        st.stop()
+
     llm = ChatGoogleGenerativeAI(
         model_name="gemini-2.5-chat",
-        api_key=os.environ.get("GOOGLE_API_KEY"),  # Set via Streamlit Secrets
-        temperature=0.7
+        api_key=api_key,
+        temperature=0.7,
     )
 
+    # Compose chain: prompt -> LLM -> output parser
     chain = prompt | llm | parser
     return chain, format_instructions
 
-# ======================
-# 3. Wrapper function
-# ======================
+# ============================
+# 3. Wrapper classify function
+# ============================
 def classify_message(message: str) -> SpamClassification:
     chain, format_instructions = get_chain()
     return chain.invoke({
@@ -61,9 +67,9 @@ def classify_message(message: str) -> SpamClassification:
         "message": message
     })
 
-# ======================
-# 4. Streamlit UI
-# ======================
+# ========================
+# 4. Streamlit UI starts
+# ========================
 st.set_page_config(page_title="Spam Detector", page_icon="🚨")
 st.title("🚨 Spam Detector (Gemini + LangChain)")
 
@@ -93,7 +99,7 @@ if st.button("🔍 Classify"):
                 with st.expander("🧾 Raw JSON Result"):
                     st.json(result.model_dump())
 
-            except ValidationError as e:
-                st.error(f"Validation failed: {e}")
+            except ValidationError as ve:
+                st.error(f"Validation failed: {ve}")
             except Exception as e:
-                st.error(f"An error occurred: {e}")
+                st.error(f"An unexpected error occurred: {e}")
