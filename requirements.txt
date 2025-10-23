@@ -5,10 +5,10 @@ streamlit==1.37.1
 pandas==2.2.3
 numpy==1.26.4
 
-# LangChain + Google GenAI
-langchain==0.3.7
+# LangChain + Google GenAI (version compatibility fixed)
+langchain==0.2.2
 langchain-google-genai==1.0.3
-google-generativeai>=0.5.2,<0.6.0  # Downgrade to match langchain-google-genai
+google-generativeai>=0.5.2,<0.6.0
 
 # Environment variables
 python-dotenv==1.0.1
