@@ -1,25 +1,15 @@
-# Core app framework
 streamlit==1.37.1
-
-# Data handling
 pandas==2.2.3
 numpy==1.26.4
 
-# LangChain + Google GenAI (version compatibility fixed)
-langchain==0.2.2
-langchain-google-genai==1.0.3
-google-generativeai>=0.5.2,<0.6.0
+# Updated LangChain and Google GenAI versions
+langchain==0.3.7
+langchain-google-genai==2.0.0
+google-generativeai==0.8.5
 
-# Environment variables
 python-dotenv==1.0.1
-
-# Utilities
 tenacity==8.5.0
 tqdm==4.66.5
-
-# Visualization
 altair==5.3.0
 pydeck==0.9.1
-
-# Images
 Pillow==10.3.0
