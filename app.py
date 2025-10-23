@@ -11,23 +11,18 @@ try:
 except ImportError:
     st.error(
         "LangChain or Google Generative AI modules not found. "
-        "Ensure you installed langchain>=1.1 and langchain-google-genai>=1.0.1."
+        "Make sure you installed langchain>=0.3.7 and langchain-google-genai>=2.0.0."
     )
     raise
 
-# ============================
-# 1. Define Schema for output
-# ============================
+# Define Pydantic model for classification result
 class SpamClassification(BaseModel):
     label: Literal["Spam", "Not Spam", "Uncertain"]
     reasons: List[str]
-    risk_score: int = Field(..., ge=0, le=100, description="Risk score from 0 to 100")
+    risk_score: int = Field(..., ge=0, le=100)
     red_flags: List[str]
     suggested_action: str
 
-# ============================
-# 2. Build chain (cached)
-# ============================
 @st.cache_resource
 def get_chain():
     parser = PydanticOutputParser(pydantic_object=SpamClassification)
@@ -36,30 +31,24 @@ def get_chain():
     prompt = ChatPromptTemplate.from_messages([
         (
             "system",
-            f"You are ScamGuard, an expert spam detector. "
-            f"Return ONLY a JSON object following this schema:\n{format_instructions}"
+            f"You are ScamGuard, an expert spam detector. Return ONLY a JSON object following this schema:\n{format_instructions}"
         ),
         ("human", "Classify this message:\n\"{message}\"")
     ])
 
-    api_key = os.environ.get("GOOGLE_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
+    api_key = os.getenv("GOOGLE_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
     if not api_key:
-        st.error("GOOGLE_API_KEY is not set. Please add it in Streamlit Secrets.")
+        st.error("GOOGLE_API_KEY not found! Please add it to Streamlit Secrets.")
         st.stop()
 
     llm = ChatGoogleGenerativeAI(
         model_name="gemini-2.5-chat",
         api_key=api_key,
-        temperature=0.7,
+        temperature=0.7
     )
 
-    # Compose chain: prompt -> LLM -> output parser
-    chain = prompt | llm | parser
-    return chain, format_instructions
+    return prompt | llm | parser, format_instructions
 
-# ============================
-# 3. Wrapper classify function
-# ============================
 def classify_message(message: str) -> SpamClassification:
     chain, format_instructions = get_chain()
     return chain.invoke({
@@ -67,9 +56,7 @@ def classify_message(message: str) -> SpamClassification:
         "message": message
     })
 
-# ========================
-# 4. Streamlit UI starts
-# ========================
+# Streamlit UI
 st.set_page_config(page_title="Spam Detector", page_icon="🚨")
 st.title("🚨 Spam Detector (Gemini + LangChain)")
 
