@@ -2,10 +2,10 @@ streamlit==1.37.1
 pandas==2.2.3
 numpy==1.26.4
 
-# Updated LangChain and Google GenAI versions
+# Use compatible versions together
 langchain==0.3.7
 langchain-google-genai==2.0.0
-google-generativeai==0.8.5
+google-generativeai==0.7.5
 
 python-dotenv==1.0.1
 tenacity==8.5.0
@@ -13,3 +13,4 @@ tqdm==4.66.5
 altair==5.3.0
 pydeck==0.9.1
 Pillow==10.3.0
+
