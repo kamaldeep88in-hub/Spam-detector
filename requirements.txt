@@ -5,24 +5,23 @@ streamlit==1.37.1
 pandas==2.2.3
 numpy==1.26.4
 
-# LangChain + Google GenAI integration (stable versions for Python 3.10)
+# LangChain + Google GenAI integration
 langchain==0.3.7
-langchain-core==0.3.7
 langchain-google-genai==1.0.3
 
 # Google API client (for Gemini)
 google-generativeai==0.7.2
 
-# For environment variables
+# Environment variables
 python-dotenv==1.0.1
 
-# Optional: for logging, retries, and progress
+# Optional utilities
 tenacity==8.5.0
 tqdm==4.66.5
 
-# Visualization and extras (Streamlit dependencies)
+# Visualization and extras
 altair==5.3.0
 pydeck==0.9.1
 
-# Pillow for image processing (used internally by Streamlit)
+# Pillow for images
 Pillow==10.3.0
