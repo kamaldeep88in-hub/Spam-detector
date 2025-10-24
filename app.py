@@ -40,7 +40,7 @@ def get_chain():
     ])
 
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-chat",  # or "models/gemini-1.5-flash"
+        model="models/gemini-2.5-pro",  # or "models/gemini-1.5-flash"
         google_api_key=os.environ.get("GOOGLE_API_KEY"),
         temperature=0
     )
